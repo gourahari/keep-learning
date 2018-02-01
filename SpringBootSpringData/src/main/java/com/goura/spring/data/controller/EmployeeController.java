@@ -1,6 +1,10 @@
 package com.goura.spring.data.controller;
 
+import static com.goura.spring.data.Constants.FIRST_NAME;
+import static com.goura.spring.data.Constants.LAST_NAME;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,11 +31,50 @@ public class EmployeeController {
 
 	@GetMapping("/employees")
 	@ResponseStatus(HttpStatus.OK)
-	public List<Employee> getAll() {
-		Iterable<Employee> iterable = repository.findAll();
-		List<Employee> target = new ArrayList<>();
-		iterable.forEach(target::add);
-		return target;
+	public List<Employee> getAll(
+			@RequestParam(required=false) String firstName,
+			@RequestParam(required=false) String lastName) {
+		String query = null;
+		int count = 0;
+		if (null != firstName) {
+			query = FIRST_NAME;
+			count++;
+		}
+
+		if (null != lastName) {
+			query = LAST_NAME;
+			count++;
+		}
+
+		if (1 == count) {
+			switch (query) {
+			case FIRST_NAME:
+				return repository.findByFirstName(firstName);
+
+			case LAST_NAME:
+				return repository.findByLastName(lastName);
+
+			default:
+				return Collections.emptyList();
+			}
+		} else {
+			final List<Employee> target = new ArrayList<>();
+			repository.findAll()
+				.forEach(e -> {
+					boolean flag = true;
+					if (null != firstName && !firstName.equalsIgnoreCase(e.getFirstName())) {
+						flag = false;
+					}
+					if (flag && null != lastName && !lastName.equalsIgnoreCase(e.getLastName())) {
+						flag = false;
+					}
+
+					if (flag) {
+						target.add(e);
+					}
+				});
+			return target;
+		}
 	}
 
 	@GetMapping("/employees/id/{id}")

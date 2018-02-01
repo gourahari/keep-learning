@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -21,6 +22,14 @@ public class ErrorController {
 		errorMap.put("status", e.getStatus().toString());
 		errorMap.put("message", e.getMessage());
 		return new ResponseEntity<Map<String, String>>(errorMap, e.getStatus());
+	}
+
+	@ExceptionHandler(ServletRequestBindingException.class)
+	public ResponseEntity<Map<String, String>>  handleServletRequestBindingException(ServletRequestBindingException e) {
+		Map<String, String> errorMap = new HashMap<String, String>();
+		errorMap.put("status", HttpStatus.BAD_REQUEST.toString());
+		errorMap.put("message", e.getMessage());
+		return new ResponseEntity<Map<String, String>>(errorMap, HttpStatus.BAD_REQUEST);
 	}
 
 	@ExceptionHandler(Exception.class)
