@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 import com.goura.spring.data.bean.Employee;
-import com.goura.spring.data.bean.Manager;
 import com.goura.spring.data.repository.EmployeeRepository;
 
 @SpringBootApplication
